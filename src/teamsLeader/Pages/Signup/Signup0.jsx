@@ -7,10 +7,29 @@ import { HiMiniArrowRight } from "react-icons/hi2";
 import IMAGES from "../../../assets/images/Images";
 import { useNavigate } from "react-router-dom";
 import { useStateContext } from "../../../contexts/ContextProvider";
+import {postAPI} from "../../../helpers/apis";
+import { toast } from "react-toastify";
 
 const Signup0 = ({setActiveView,userEmail, setUserEmail}) => {
   const navigate = useNavigate();
   // const {  } = useStateContext();
+
+
+
+  const verifyEmail = async (e) => {  
+    e.preventDefault();
+
+    let data = new FormData(e.target);
+    let response = await postAPI("/api/user/signup/verify-email", data);
+    console.log(response);
+    if(response.status===200){
+      setActiveView("view1");
+    }else{
+      toast.error(response.data.message);
+    }
+  }
+
+
 
   return (
     <div className="signup_form w-100 ">
@@ -38,24 +57,21 @@ const Signup0 = ({setActiveView,userEmail, setUserEmail}) => {
             Get started - it's free. No credit card needed.
           </p>
         </div>
-        <div className="mt-5" style={{ width: "420px" }}>
+        <form onSubmit={verifyEmail} className="mt-5" style={{ width: "420px" }}>
           <input
             type="email"
             className="login_input"
+            name="emailAddress"
             value={userEmail}
             onChange={(e) => setUserEmail(e.target.value)}
             placeholder="Example@company.com"
           />
-          <Button
+          <Button type="submit"
             className="rounded-1 w-100 mt-4 align-items-center green_btn border-0"
-            // style={{ padding: "11px 10px" }}
-            onClick={() => {
-              setActiveView("view1")
-            }}
           >
             Continue
           </Button>
-        </div>
+        </form>
         <div className="fs_16 login_suggest mt-4 ">
           <div className="mb-1">
             <span>By proceeding, you agree to the </span>

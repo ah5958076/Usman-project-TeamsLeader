@@ -14,6 +14,8 @@ import HomeCustomization from "./teamsLeader/Pages/homeCustmizingPage/homeCustom
 import HomeCustomization2 from "./teamsLeader/Pages/homeCustmizingPage/HomeCustomization2";
 import PasswordManger from "./passwordManager/PasswordManger";
 import Signup from "./teamsLeader/Pages/Signup/index.jsx";   
+import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 // import AdminHome from "./adminPanel/home/AdminHome";
 
 
@@ -21,20 +23,25 @@ import Signup from "./teamsLeader/Pages/Signup/index.jsx";
 
 const App = () => {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/invite-team" element={<InviteTeam />} />
-        <Route path="/home-customization" element={<HomeCustomization />} />
-        <Route path="/home-customization2" element={<HomeCustomization2 />} />
-        <Route path="/password-managment" element={<PasswordManger />} />
-        {/* <Route path="/admin" element={<AdminHome />} /> */}
+    <>
+    
+      <ToastContainer/>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/invite-team" element={<InviteTeam />} />
+          <Route path="/home-customization" element={<HomeCustomization />} />
+          <Route path="/home-customization2" element={<HomeCustomization2 />} />
+          <Route path="/password-managment" element={<PasswordManger />} />
+          {/* <Route path="/admin" element={<AdminHome />} /> */}
 
-        {/* <Route path="*" element={<div>Page not found</div>} /> */}
-      </Routes>
-    </Router>
+          {/* <Route path="*" element={<div>Page not found</div>} /> */}
+        </Routes>
+      </Router>
+    
+    </>
   );
 };
 

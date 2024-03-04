@@ -8,12 +8,13 @@ import IMAGES from "../../../assets/images/Images";
 import { useNavigate } from "react-router-dom";
 import { useStateContext } from "../../../contexts/ContextProvider";
 import axios from "axios";
+import { postAPI } from "../../../helpers/apis";
+import { toast } from "react-toastify";
 // import nodemailer from "nodemailer";
 
 const Signup1 = ({ setActiveView, userEmail }) => {
   const [formDataList, setFormDataList] = useState([]);
   // const {  } = useStateContext();
-  console.log({ userEmail });
   const {
     handleSubmit,
     control,
@@ -30,33 +31,23 @@ const Signup1 = ({ setActiveView, userEmail }) => {
 
   const onSubmit = async (data) => {
     const payload = {
-      emailAddress: userEmail, // Assuming you want to use the userEmail from context
+      emailAddress: userEmail,
+      password: data.password, // Assuming you want to use the userEmail from context
       fullName: data.fullName,
       accountName: data.accountName,
     };
 
-    try {
-      const response = await axios.post(
-        "http://localhost:8888/api/user/signup",
-        payload
-      );
-      setFormDataList((prevDataList) => [payload, ...prevDataList]);
-      // reset({
-      //   fullName: "",
-      //   password: "",
-      //   accountName: "",
-      // });
+    let response = await postAPI("/api/user/signup", payload);
 
-      // // Assuming the API response contains a success flag or similar
-      if (response.data.success) {
-        localStorage.setItem("token", response.data.user.emailAddress);
-        navigate("/success"); // Navigate to success page or handle accordingly
-      } else {
-        // Handle failure, show error message, etc.
-        console.error("User registration failed");
-      }
-    } catch (error) {
-      console.error("Error calling signup API:", error.message);
+    setFormDataList((prevDataList) => [payload, ...prevDataList]);
+    reset({fullName: "",password: "",accountName: ""});
+
+    if (response.status===200) {
+      toast.success(response.data.message);
+      localStorage.setItem("token", response.data.token);
+      navigate("/success");
+    } else {
+      toast.error(response.data.message);
     }
   };
   return (
