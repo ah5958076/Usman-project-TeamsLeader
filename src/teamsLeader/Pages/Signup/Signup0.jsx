@@ -19,9 +19,10 @@ const Signup0 = ({setActiveView,userEmail, setUserEmail}) => {
   const verifyEmail = async (e) => {  
     e.preventDefault();
 
-    let data = new FormData(e.target);
+    let data = {
+      emailAddress: e.target.emailAddress.value    
+    }
     let response = await postAPI("/api/user/signup/verify-email", data);
-    console.log(response);
     if(response.status===200){
       setActiveView("view1");
     }else{

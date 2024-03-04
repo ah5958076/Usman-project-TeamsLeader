@@ -3,9 +3,11 @@ import "../../../assets/css/Login.css";
 import { useForm, Controller } from "react-hook-form";
 import { Button, Form } from "react-bootstrap";
 import { MdChevronRight } from "react-icons/md";
-import { v4 as uuidv4 } from "uuid";
 import IMAGES from "../../../assets/images/Images";
-import { useNavigate } from "react-router-dom";
+
+
+
+
 
 const Signup2 = ({setActiveView}) => {
   const [data, setData] = useState();

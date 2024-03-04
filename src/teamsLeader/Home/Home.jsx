@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Sidebar from "../sidebar/Sidebar";
 import Navbar from "../navbar/Navbar";
 import "froala-editor/css/froala_style.min.css";
@@ -7,12 +7,16 @@ import "froala-editor/js/froala_editor.pkgd.min.js";
 import "froala-editor/js/plugins.pkgd.min.js";
 import { useStateContext } from "../../contexts/ContextProvider";
 import SlateEditor from "../Pages/DocCreater/SlateEditor";
+import { getAPI } from "../../helpers/apis";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 
 
 
 const Home = () => {
-  const token = localStorage.getItem("token") || "";
+  const navigate = useNavigate();
+  const [user, setUser] = useState({});
   const {
     theme,
     setTheme,
@@ -20,6 +24,22 @@ const Home = () => {
     setIsSidebarVisible,
     isEmailVerified,
   } = useStateContext();
+
+  useEffect(() => {
+    getAPI("/api/user/get-user-from-token").then((response) => {
+      if(response.status===200){
+        setUser(response.data._doc);
+      }
+    }).catch((e) => {
+      console.log(e);
+      if(e.response.status===401){
+        toast.error("Authentication Failed");
+        return navigate("/login");
+      }
+      toast.error(e.response.data.message);
+    });
+  }, []);
+
   useEffect(() => {
     document.body.className = theme;
     var pathname = window.location.pathname;
@@ -41,10 +61,10 @@ const Home = () => {
     <div>
       {/* <Alert message="Success Text" type="success" /> */}
       <div className="Navbar p-0 w-100 " style={{ zIndex: 999 }}>
-        <Navbar setTheme={setTheme} token={token} />
+        <Navbar setTheme={setTheme} user={user} />
       </div>
 
-      <div className="app-container flex  ">
+      <div className="app-container flex">
         <div
           className={`sidebar ${isEmailVerified ? "" : "top88"}  ${
             isSidebarVisible ? "" : "collapse_sidebar"

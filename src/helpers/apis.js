@@ -8,22 +8,12 @@ axios.defaults.headers.common["Authorization"]=localStorage.getItem("token") || 
 
 
 export const postAPI = async (url, data) => {
-    try{
-        let response = await axios.post(url, data);
-        return response;
-    }catch(e){
-        console.log("Error: ", e);
-        return {status: 500, data: {message: "Internal server error"}};
-    }
+    let response = await axios.post(url, data);
+    return response;
 }
 
 
 export const getAPI = async (url) => {
-    try{
-        let response = await axios.get(url);
-        return response;
-    }catch(e){
-        console.log("Error: ", e);
-        return {status: 500, data: {message: "Internal server error"}};
-    }
+    let response = await axios.get(url);
+    return response;
 }

@@ -22,17 +22,10 @@ const Signup1 = ({ setActiveView, userEmail }) => {
     formState: { errors },
   } = useForm();
 
-  useEffect(() => {
-    if (formDataList.length > 0) {
-      setActiveView("view2");
-      console.log(formDataList);
-    }
-  }, [formDataList, setActiveView]);
-
   const onSubmit = async (data) => {
     const payload = {
       emailAddress: userEmail,
-      password: data.password, // Assuming you want to use the userEmail from context
+      password: data.password,
       fullName: data.fullName,
       accountName: data.accountName,
     };
@@ -45,7 +38,7 @@ const Signup1 = ({ setActiveView, userEmail }) => {
     if (response.status===200) {
       toast.success(response.data.message);
       localStorage.setItem("token", response.data.token);
-      navigate("/success");
+      setActiveView("view2");
     } else {
       toast.error(response.data.message);
     }

@@ -21,11 +21,13 @@ import { IoExitOutline, IoPersonOutline } from "react-icons/io5";
 import { GoBell } from "react-icons/go";
 import { useStateContext } from "../../contexts/ContextProvider";
 import { Alert } from "antd";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
+import { getAPI } from "../../helpers/apis";
+import { toast } from "react-toastify";
 
-const Navbar = ({ token }) => {
-  console.log({ token });
+const Navbar = ({ user }) => {
+  const navigate = useNavigate();
   const { setTheme, isEmailVerified, setIsEmailVerified } = useStateContext();
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
@@ -39,38 +41,24 @@ const Navbar = ({ token }) => {
     setIsHovered(false);
   };
 
-  // // const location = useLocation();
-  // const location = useLocation();
-  // const queryParams = new URLSearchParams(location.search);
-  // const token = queryParams.get("token");
 
-  useEffect(() => {
-    if (token) {
-      axios
-        .get(`http://localhost:8888/api/user/confirm?token=${token}`)
-        .then((response) => {
-          if (response.data.message === "Email confirmed successfully") {
-            setIsEmailVerified(true);
-          }
-        })
-        .catch((error) => {
-          console.error("Error confirming email:", error.message);
-        });
-    }
 
-    if (token) {
-      axios
-        .get(`http://localhost:8888/api/user/fetch?token=${token}`)
-        .then((response) => {
-          if (response.data?.confirmed) {
-            setIsEmailVerified(true);
-          }
-        })
-        .catch((error) => {
-          console.error("Error confirming email:", error.message);
-        });
+  const resendEmail = async (e) => {
+    e.preventDefault();
+
+    e.target.style.pointerEvents="none";
+    let response = await getAPI("/api/user/resend-mail");
+    if(response.status===200){
+      toast.success(response.data.message);
+    }else if(response.status===401){
+      toast.error(response.data.message);
+      navigate("/login");
+    }else{
+      toast.error(response.data.message);
     }
-  }, [token]);
+    e.target.style.pointerEvents="initial";
+  }
+
 
   return (
     <>
@@ -79,20 +67,17 @@ const Navbar = ({ token }) => {
           className="email-verify-message"
           message={
             <span className="fs_15">
-              Please confirm your email address: usman123@gmail.com &nbsp;
+              Please confirm your email address: {user.emailAddress} &nbsp;
               <a
                 href="#"
+                onClick={resendEmail}
                 style={{ color: "white", textDecoration: "underline" }}
-              >
-                Resend email
-              </a>
+              >Resend email</a>
               &nbsp;&nbsp;
               <a
                 href="#"
                 style={{ color: "white", textDecoration: "underline" }}
-              >
-                Change email address
-              </a>
+              >Change email address</a>
             </span>
           }
           type="info"
