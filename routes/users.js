@@ -1,59 +1,12 @@
 const router = require("express").Router();
-const nodemailer = require("nodemailer");
-const fs = require("fs");
-const path = require("path");
 const User = require("../models/users");
+const { login, signup, verifyEmailExistance } = require("../controllers/users");
 
 
 
 
-router.post("/signup", async (req, res) => {
-    try {
-        const { fullName, emailAddress, accountName } = req.body;
-        let user = await User.findOne({ emailAddress });
-        if (user) {
-            return res
-                .status(400)
-                .json({ error: "Sorry, a user with this email already exists" });
-        }
-
-        let sessionID = Date.now();
-        let new_user = new User({ emailAddress, fullName, accountName, emailVerificationSessionID: sessionID });
-        await new_user.save();
-
-        const htmlContent = fs.readFileSync(path.join(__dirname, "../helpers/index.html"), "utf-8");
-        htmlContent = htmlContent
-            .replace("{{userFullName}}", fullName)
-            .replace("{{confirmationToken}}", sessionID); 
-
-        const transporter = nodemailer.createTransport({
-            host: "mail.teamsleader.com",
-            port: 465,
-            secure: true,
-            auth: {
-                user: process.env.MAIL_USER,
-                pass: process.env.MAIL_PASS,
-            },
-        });
-        const mailOptions = {
-            from: process.env.MAIL_USER,
-            to: emailAddress,
-            subject: "Email address confirmation",
-            html: htmlContent,
-        };
-
-        transporter.sendMail(mailOptions, function (error, info) {
-            if (error) {
-                console.log({ error });
-                res.status(404).json({ message: "Email sending failed" });
-            } else {
-                res.status(200).json({message: "User registered successfully"});
-            }
-        });
-    } catch (err) {
-        res.status(500).json({ error: "Internal server error" });
-    }
-});
+router.post("/signup/verify-email", verifyEmailExistance);
+router.post("/signup", signup);
 
 router.get("/confirm", async (req, res) => {
     try {

@@ -1,5 +1,9 @@
 const User = require("../modals/users");
 const moment = require("moment");
+
+
+
+
 const updateUserStatusMiddleware = async (req, res, next) => {
   try {
     const users = await User.find(); // Find all users
@@ -18,9 +22,7 @@ const updateUserStatusMiddleware = async (req, res, next) => {
     next();
   } catch (error) {
     console.error("Error updating user status:", error);
-    res.status(500).json({ success: false, message: "Internal Server Error" });
+    return res.status(500).json({ message: "Internal Server Error" });
   }
 };
-const helloNew = () => {
-};
-module.exports = { updateUserStatusMiddleware, helloNew };
+module.exports = { updateUserStatusMiddleware };
