@@ -82,7 +82,7 @@ const getTokenPayload = (token) => {
         try{
             jwt.verify(token, process.env.SECRET_KEY, (err, payload) => {
                 if(err)
-                    reject({statusCode: 400, message: "Token expired or invalid. Please refresh and try again"});
+                    reject({statusCode: 401, message: "Token expired or invalid. Please refresh and try again"});
                 resolve({statusCode: 200, payload});
             });
         }catch(e){

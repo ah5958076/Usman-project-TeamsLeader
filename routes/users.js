@@ -1,12 +1,15 @@
 const router = require("express").Router();
 const User = require("../models/users");
-const { login, signup, verifyEmailExistance } = require("../controllers/users");
+const authenticateUser = require("../middleware/authenticateUser");
+const { login, signup, verifyEmailExistance, getUserFromToken, resendEmail } = require("../controllers/users");
 
 
 
 
+router.get("/get-user-from-token", authenticateUser, getUserFromToken);
 router.post("/signup/verify-email", verifyEmailExistance);
 router.post("/signup", signup);
+router.get("/resend-mail", authenticateUser, resendEmail);
 
 router.get("/confirm", async (req, res) => {
     try {
