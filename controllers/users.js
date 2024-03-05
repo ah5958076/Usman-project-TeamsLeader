@@ -1,4 +1,4 @@
-const { sendMail,generateHash, generateToken } = require("../helpers/general");
+const { sendMail,generateHash, generateToken, compareHash } = require("../helpers/general");
 const fs = require("fs")
 const path = require("path")
 const User = require("../models/users");
@@ -56,7 +56,6 @@ const signup = async (req, res) => {
         if(result.statusCode!==200)
             return res.status(result.statusCode).json({message: result.message});
 
-
         let sessionID = Date.now();
         let userData = {
             emailAddress,
@@ -70,6 +69,7 @@ const signup = async (req, res) => {
         if(!result)
             return res.status(500).json({ message: "Internal server error" });
 
+
         let tokenResult = await generateToken({emailAddress});
         if(tokenResult.statusCode!==200)
             return res.status(tokenResult.statusCode).json({ message: tokenResult.message });
@@ -78,7 +78,7 @@ const signup = async (req, res) => {
         let htmlContent = fs.readFileSync(path.join(__dirname, "../helpers/index.html"), "utf-8");
         htmlContent = htmlContent
             .replace("{{userFullName}}", fullName)
-            .replace("{{confirmationToken}}", sessionID); 
+            .replace("{{frontEndBaseURL}}", process.env.FORNT_END_BASE_URL);
 
 
         let response = await sendMail(emailAddress, "Email Verification from TeamsLeader", htmlContent);        
@@ -90,13 +90,69 @@ const signup = async (req, res) => {
 }
 
 
-const login = (req, res) => {
+const login = async (req, res) => {
+    try{
+        let {emailAddress, password} = req.body;
+        if(!emailAddress)
+            return res.status(201).json({message: "Email is empty"})
+        if(!password)
+            return res.status(201).json({message: "Password is empty"})
 
+
+        let user = await User.findOne({emailAddress});
+        if(user){
+            if(compareHash(user.password, password)){
+                let token = await generateToken({emailAddress: user.emailAddress});
+                if(token){
+                    return res.status(200).json({message: "Login successfully", token});
+                }else{
+                    return res.status(400).json({message: "Something went wrong. Please try again"});
+                }
+            }else{
+                return res.status(400).json({message: "Incorrect password"});
+            }
+        }else{  
+            return res.status(404).json({message: "User not found"});
+        }
+    }catch(e){
+        console.log("Error: ", e);
+        return res.status(500).json({message: "Internal server error"});
+    }
 }
 
 
-const validateToken = (req, res) => {
-
+const confirmEmail = async (req, res) => {
+    try{
+        let emailAddress = req.user?.emailAddress;
+        let user = await User.findOne({emailAddress});
+        if(user.isEmailVerified){
+            return res.status(200).json({message: "Email verified"});
+        }
+        let expirationTime = user.emailVerificationSessionID+process.env.EXPIRATION_PERIOD*60*1000;
+        if(user){
+            if(user.emailVerificationSessionID){
+                if(Date.now()<expirationTime){  
+                    user.isEmailVerified=true;
+                    user.emailVerificationSessionID=null;
+                    let result = await user.save();
+                    if(result){
+                        return res.status(200).json({message: "Verification successfull"});
+                    }else{
+                        return res.status(400).json({message: "Something went wrong. Please refresh and try again"});
+                    }
+                }else{
+                    return res.status(201).json({message: "Email verification link expired. Please resend email and try again"});
+                }
+            }else{
+                return res.status(404).json({message: "Something went wrong. Please resend mail and try again"});
+            }
+        }else{
+            return res.status(400).json({message: "User not found"});
+        }
+    }catch(e){
+        console.log("Error: ", e);
+        return res.status(500).json({message: "Internal server error"});
+    }   
 }
 
 
@@ -118,7 +174,7 @@ const resendEmail = async (req, res) => {
     let htmlContent = fs.readFileSync(path.join(__dirname, "../helpers/index.html"), "utf-8");
         htmlContent = htmlContent
             .replace("{{userFullName}}", user.fullName)
-            .replace("{{confirmationToken}}", sessionID); 
+            .replace("{{frontEndBaseURL}}", process.env.FORNT_END_BASE_URL); 
 
 
         let response = await sendMail(emailAddress, "Email Verification from TeamsLeader", htmlContent);        
@@ -127,4 +183,4 @@ const resendEmail = async (req, res) => {
 
 
 
-module.exports = {getUserFromToken, verifyEmailExistance, signup, login, validateToken, resendEmail}
+module.exports = {getUserFromToken, verifyEmailExistance, signup, login, confirmEmail, resendEmail}

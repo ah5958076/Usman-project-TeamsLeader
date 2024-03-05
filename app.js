@@ -18,6 +18,7 @@ app.use(cors());
 
 
 app.use("/api/user", require("./routes/users"));
+app.use("/api/kanban", require("./routes/kanban"));
 
 
 const PORT = process.env.PORT || 8888;
