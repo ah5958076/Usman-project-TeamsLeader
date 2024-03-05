@@ -31,9 +31,7 @@ const Home = () => {
         setUser(response.data._doc);
       }
     }).catch((e) => {
-      console.log(e);
       if(e.response.status===401){
-        toast.error("Authentication Failed");
         return navigate("/login");
       }
       toast.error(e.response.data.message);

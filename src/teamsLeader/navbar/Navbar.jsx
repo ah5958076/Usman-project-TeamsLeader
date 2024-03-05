@@ -21,8 +21,7 @@ import { IoExitOutline, IoPersonOutline } from "react-icons/io5";
 import { GoBell } from "react-icons/go";
 import { useStateContext } from "../../contexts/ContextProvider";
 import { Alert } from "antd";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import { getAPI } from "../../helpers/apis";
 import { toast } from "react-toastify";
 
@@ -42,6 +41,24 @@ const Navbar = ({ user }) => {
   };
 
 
+  useEffect(() => {
+
+    getAPI("/api/user/get-user-from-token").then((response) => {
+        if(response.status===200 && response.data?._doc?.isEmailVerified){
+          setIsEmailVerified(true);
+        }else{
+          toast.error(response.data.message);
+        }
+    }).catch((err) => {
+        if(err.status===401){
+          return window.location.replace("/login");
+        }
+        toast.error(response.data.message);
+    }); 
+
+  }, [isEmailVerified])
+
+
 
   const resendEmail = async (e) => {
     e.preventDefault();
@@ -51,7 +68,6 @@ const Navbar = ({ user }) => {
     if(response.status===200){
       toast.success(response.data.message);
     }else if(response.status===401){
-      toast.error(response.data.message);
       navigate("/login");
     }else{
       toast.error(response.data.message);

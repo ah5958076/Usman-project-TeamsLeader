@@ -14,6 +14,7 @@ import HomeCustomization from "./teamsLeader/Pages/homeCustmizingPage/homeCustom
 import HomeCustomization2 from "./teamsLeader/Pages/homeCustmizingPage/HomeCustomization2";
 import PasswordManger from "./passwordManager/PasswordManger";
 import Signup from "./teamsLeader/Pages/Signup/index.jsx";   
+import EmailVerification from "./teamsLeader/Pages/EmailVerification";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 // import AdminHome from "./adminPanel/home/AdminHome";
@@ -29,6 +30,7 @@ const App = () => {
       <Router>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/verify-email" element={<EmailVerification />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/invite-team" element={<InviteTeam />} />
